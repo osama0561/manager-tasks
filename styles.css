@@ -201,6 +201,30 @@ html, body {
   font-size: 15px; line-height: 1.5; color: var(--fg);
 }
 
+/* Course recommendation (start-here path) */
+.reco {
+  max-width: 520px; margin: 26px auto 0; text-align: right;
+  background: var(--bg-accent);
+  border: 1px solid rgba(138,240,230,.22);
+  border-radius: var(--radius); padding: 20px 22px;
+}
+.reco__title { font-size: 20px; font-weight: 700; color: var(--brand); margin-bottom: 8px; }
+.reco__line { color: var(--fg); font-size: 15px; line-height: 1.7; margin-bottom: 16px; }
+.reco__list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.reco__list li {
+  display: flex; align-items: flex-start; gap: 12px;
+  border-top: 1px solid rgba(255,255,255,.07); padding-top: 10px;
+}
+.reco__list li:first-child { border-top: none; padding-top: 0; }
+.reco__tag {
+  flex: 0 0 auto; font-size: 12px; font-weight: 700; color: var(--brand);
+  background: rgba(138,240,230,.12); border-radius: 999px;
+  padding: 4px 10px; white-space: nowrap; margin-top: 2px;
+}
+.reco__body { display: flex; flex-direction: column; gap: 2px; }
+.reco__course { font-size: 16px; font-weight: 600; color: var(--fg); }
+.reco__note { font-size: 13px; color: var(--muted); }
+
 /* Welcome / thank-you */
 .center { text-align: center; }
 .center .q-title { font-size: clamp(30px, 5vw, 48px); }

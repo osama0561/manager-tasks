@@ -97,6 +97,26 @@ function scoreTier(s) {
   return { label: "🌱 Ready to Grow", msg: "A perfect starting point — the gains from here are the biggest." };
 }
 
+// The fixed learning path (unlock order) — same for every new member.
+const LEARNING_PATH = [
+  { tag: "ابدأ الآن", course: "🚀 (ابدأ هنا)", note: "تعلّم المنصة من جوالك — لا تتجاوز هذا القسم" },
+  { tag: "ابدأ الآن", course: "⚙️ أساسيات الأتمتة", note: "نفّذ مهمة كل فيديو يوميًا" },
+  { tag: "المستوى 2", course: "🤖 معسكر claude ai", note: "اهدف توصله خلال أول 30 يوم" },
+  { tag: "بعد 30 يوم", course: "📱 كيف تبني تطبيقات بالذكاء الاصطناعي", note: "تبني تطبيقك بأساس قوي" },
+  { tag: "بعد 30 يوم", course: "🏢 مكتبة أنظمة الشركات", note: "أنظمة متقدمة من تجارب حقيقية" },
+  { tag: "المستوى 3", course: "🎁 مكتبة الورشات الخاصة", note: "مكافأة تفاعلك وعطائك للمجتمع" },
+];
+
+// A personalized line based on their self-rated AI level.
+function recommendLine(a) {
+  const lvl = Number(a.ai_level) || 1;
+  if (lvl <= 2)
+    return "إنت في بداية طريقك مع الذكاء الاصطناعي، وهذا أفضل وقت تبدأ فيه. خذها خطوة بخطوة — الأساس أهم من السرعة، ولا تتجاوز الأقسام.";
+  if (lvl === 3)
+    return "عندك أساس جيد. ركّز على الأتمتة وكلود في أول 30 يوم، وبتكون جاهز تبني تطبيقك بثقة.";
+  return "خبرتك ممتازة وبتتحرك بسرعة — ثبّت الأساسيات أول، وخلّي هدفك توصل المستوى الثالث وتفتح الورشات الخاصة.";
+}
+
 function renderThankYou(q) {
   const wrap = el("div", "center");
   const score = computeScore(answers);
@@ -112,9 +132,25 @@ function renderThankYou(q) {
     </div>
     <div class="score-tier">${tier.label}</div>
     <div class="q-sub">${tier.msg}</div>
-    <div class="score-share">
-      📸 <strong>Screenshot this score</strong> and share it in ${where} —
-      let's see where you're starting from!
+
+    <div class="reco" dir="rtl">
+      <div class="reco__title">📍 من وين تبدأ</div>
+      <div class="reco__line">${recommendLine(answers)}</div>
+      <ol class="reco__list">
+        ${LEARNING_PATH.map(
+          (s) => `<li>
+            <span class="reco__tag">${s.tag}</span>
+            <span class="reco__body">
+              <span class="reco__course">${s.course}</span>
+              <span class="reco__note">${s.note}</span>
+            </span>
+          </li>`
+        ).join("")}
+      </ol>
+    </div>
+
+    <div class="score-share" dir="rtl">
+      📸 <strong>صوّر نتيجتك ومسارك</strong> وانشرها في ${where} — شاركنا من وين بتبدأ! 🚀
     </div>
   `;
 

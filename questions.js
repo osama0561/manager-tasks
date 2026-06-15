@@ -128,7 +128,7 @@ const QUESTIONS = [
   {
     type: "thankyou",
     title: "Your AI Automation Score",
-    // The community handle/name to nudge sharing — edit to match yours.
-    community: "the community",
+    // The community name to nudge sharing — edit to match yours.
+    community: "مجتمع مجلس",
   },
 ];
