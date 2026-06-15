@@ -25,6 +25,16 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Language toggle */
+.lang-toggle {
+  position: fixed; top: 14px; inset-inline-end: 16px; z-index: 20;
+  background: var(--bg-accent); color: var(--brand);
+  border: 1px solid rgba(138,240,230,.30); border-radius: 999px;
+  padding: 7px 16px; font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.lang-toggle:hover { border-color: var(--brand); transform: translateY(-1px); }
+
 /* Progress bar */
 .progress {
   position: fixed; top: 0; left: 0; right: 0;
@@ -203,7 +213,7 @@ html, body {
 
 /* Course recommendation (start-here path) */
 .reco {
-  max-width: 520px; margin: 26px auto 0; text-align: right;
+  max-width: 520px; margin: 26px auto 0; text-align: start;
   background: var(--bg-accent);
   border: 1px solid rgba(138,240,230,.22);
   border-radius: var(--radius); padding: 20px 22px;
