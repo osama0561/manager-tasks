@@ -224,6 +224,26 @@ html, body {
   font-size: 15px; line-height: 1.5; color: var(--fg);
 }
 
+/* Prominent "screenshot & share" call-to-action (top of results) */
+.share-cta {
+  max-width: 500px; margin: 22px auto 6px; text-align: center;
+  background: linear-gradient(135deg, rgba(138,240,230,.20), rgba(69,199,186,.12));
+  border: 2px solid var(--brand);
+  border-radius: 18px; padding: 22px 22px 24px;
+  box-shadow: 0 0 0 0 rgba(138,240,230,.5);
+  animation: shareGlow 2.2s ease-in-out infinite;
+}
+@keyframes shareGlow {
+  0%, 100% { box-shadow: 0 0 24px 0 rgba(138,240,230,.20); transform: scale(1); }
+  50% { box-shadow: 0 0 40px 6px rgba(138,240,230,.40); transform: scale(1.02); }
+}
+.share-cta__emoji { font-size: 40px; line-height: 1; margin-bottom: 6px; }
+.share-cta__title {
+  font-size: clamp(22px, 4.2vw, 28px); font-weight: 800; color: var(--fg);
+  letter-spacing: -.3px; margin-bottom: 6px;
+}
+.share-cta__sub { font-size: 16px; line-height: 1.6; color: var(--fg); opacity: .92; }
+
 /* Score breakdown bars */
 .breakdown {
   max-width: 440px; margin: 18px auto 0;

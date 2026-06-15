@@ -42,9 +42,13 @@ const UI = {
   selectPlaceholder: { en: "Choose one…", ar: "اختر إجابة…" },
   startBtn: { en: "Start now →", ar: "ابدأ الآن →" },
   recoTitle: { en: "📍 Where to start", ar: "📍 من وين تبدأ" },
-  shareCta: {
-    en: "📸 <strong>Screenshot your score & path</strong> and share it in {where} — show us where you're starting! 🚀",
-    ar: "📸 <strong>صوّر نتيجتك ومسارك</strong> وانشرها في {where} — شاركنا من وين بتبدأ! 🚀",
+  shareTitle: {
+    en: "📸 Screenshot this & share it!",
+    ar: "📸 صوّر نتيجتك وشاركها!",
+  },
+  shareSub: {
+    en: "Post your AI Stage in {where} — tag yourself and let's see where you're starting! 🚀",
+    ar: "انشر مستواك في {where} — ورّنا وين بدأت رحلتك! 🚀",
   },
   // The toggle shows the language you'll switch TO.
   langToggle: { en: "العربية", ar: "English" },
@@ -256,6 +260,12 @@ function renderThankYou(q) {
     <div class="score-tier">${t(tier.label)}</div>
     <div class="q-sub">${t(tier.msg)}</div>
 
+    <div class="share-cta" dir="${dir}">
+      <div class="share-cta__emoji">📸</div>
+      <div class="share-cta__title">${t(UI.shareTitle)}</div>
+      <div class="share-cta__sub">${t(UI.shareSub).replace("{where}", where)}</div>
+    </div>
+
     <div class="breakdown" dir="${dir}">
       ${result.breakdown
         .map(
@@ -283,10 +293,6 @@ function renderThankYou(q) {
           </li>`
         ).join("")}
       </ol>
-    </div>
-
-    <div class="score-share" dir="${dir}">
-      ${t(UI.shareCta).replace("{where}", where)}
     </div>
   `;
 
