@@ -6,7 +6,7 @@
 const CONFIG = {
   // Paste the Web App URL you get from deploying google-apps-script.gs.
   // Leave "" to run in demo mode (answers logged to console + downloaded as JSON).
-  ENDPOINT: "https://script.google.com/macros/s/AKfycbyrLZRXh8aNXqq1e3yjchYQEJzwo-yeQH6fxoP2Lzcb47MVOOlLE0y_ghR8wQpnnSbr/exec",
+  ENDPOINT: "https://script.google.com/macros/s/AKfycbwlwiOqsYGgXBZ784O_jNx-AcczNCT_jzrwvyZuNxVh1BX_rZN2T4lf56Ni5ddL3_0f/exec",
 };
 
 const stage = document.getElementById("stage");
