@@ -1,55 +1,44 @@
 /**
  * Google Apps Script — receives assessment answers and appends a row
  * to your "Member Assessment Database — AI Coaching" sheet.
+ * It also keeps the header row correct automatically.
  *
- * SETUP (one time, ~3 minutes):
- *  1. Open your Sheet:
- *     https://docs.google.com/spreadsheets/d/18MfNoDbJsFxcZk_Obmf2s6KW4ocKcaHC2IOzi4rijXM
- *  2. Extensions → Apps Script. Delete any code, paste THIS file.
- *  3. Click Deploy → New deployment → type "Web app".
- *       - Execute as: Me
- *       - Who has access: Anyone
- *  4. Copy the Web app URL it gives you.
- *  5. Paste that URL into CONFIG.ENDPOINT at the top of app.js. Done.
+ * UPDATE STEPS (whenever this file changes):
+ *  1. Sheet → Extensions → Apps Script → replace all code with this → Save.
+ *  2. Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy.
+ *     (Keeps the SAME /exec URL — never use "New deployment".)
  */
 
 var SHEET_ID = "18MfNoDbJsFxcZk_Obmf2s6KW4ocKcaHC2IOzi4rijXM";
 
-// Order must match your sheet's header row.
+// Payload keys, in column order.
 var COLUMNS = [
-  "submitted_at", // Timestamp
-  "name",
-  "email",
-  "community",
-  "role",
-  "industry",       // (folded into "role" answer; left blank unless you split it)
-  "problem",
-  "obstacle",
-  "tried",          // (folded into "obstacle")
-  "goal",
-  "success",        // (folded into "goal")
-  "belief",
-  "ai_level",
-  "hours_lost",
-  "tools",
-  "wants",
-  "notes",          // "Anything else"
-  "pre_call_brief", // filled later by your AI brief
+  "submitted_at", "name", "email", "community", "role",
+  "dx_usage", "dx_depth", "dx_automation", "dx_comfort", "dx_opportunity",
+  "ai_score", "ai_stage",
+  "problem", "obstacle", "goal", "belief", "wants",
+  "lang", "pre_call_brief",
 ];
 
-// Both GET and POST go through here, so the app can submit either way and you
-// can also test by simply visiting a URL with ?name=...&email=... in a browser.
+// Friendly header labels (row 1), same order as COLUMNS.
+var HEADERS = [
+  "Timestamp", "Name", "Email", "Program", "Role / Industry",
+  "AI Usage", "AI Depth", "Automation Exp", "Tech Comfort", "Opportunity",
+  "AI Score", "AI Stage",
+  "Biggest Problem", "Main Obstacle", "90-Day Goal", "Belief / Fear", "Wants from Calls",
+  "Language", "Pre-Call Brief",
+];
+
 function handle(e) {
   try {
-    var data = (e && e.parameter) ? e.parameter : {};
-    // Fallback: JSON body, for backwards compatibility.
+    var data = (e && e.parameter && Object.keys(e.parameter).length > 0) ? e.parameter : {};
     if (!hasData(data) && e && e.postData && e.postData.contents) {
       try { data = JSON.parse(e.postData.contents); } catch (_) {}
     }
-    // No real data → health check.
     if (!hasData(data)) return json({ status: "alive" });
 
     var sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]); // keep headers correct
     var row = COLUMNS.map(function (key) {
       return data[key] !== undefined ? data[key] : "";
     });

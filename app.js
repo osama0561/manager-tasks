@@ -39,6 +39,7 @@ const UI = {
     en: "Tip: tap the 🎤 on your keyboard and just talk — say as much as you want.",
     ar: "نصيحة: اضغط 🎤 في لوحة المفاتيح وتكلّم — قول اللي تبي بدون ما تكتب.",
   },
+  selectPlaceholder: { en: "Choose one…", ar: "اختر إجابة…" },
   recoTitle: { en: "📍 Where to start", ar: "📍 من وين تبدأ" },
   shareCta: {
     en: "📸 <strong>Screenshot your score & path</strong> and share it in {where} — show us where you're starting! 🚀",
@@ -128,77 +129,79 @@ function clampScore(n) {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
 
-// Score the depth/quality of a free-text answer.
-function textScore(s) {
-  const len = s ? String(s).trim().length : 0;
-  if (len === 0) return 0;
-  if (len < 20) return 45;
-  if (len < 80) return 75;
-  return 100;
+// Look up the score of the selected option for a diagnostic question.
+function diagScore(qid) {
+  const q = QUESTIONS.find((x) => x.id === qid);
+  if (!q || !q.options) return 0;
+  const opt = q.options.find((o) => o.value === answers[qid]);
+  return opt ? opt.score || 0 : 0;
 }
 
-function countTools(s) {
-  if (!s) return 0;
-  return String(s)
-    .split(/[,،\n/|]| و /)
-    .map((x) => x.trim())
-    .filter(Boolean).length;
-}
+// The algorithm: 5 diagnostic answers → overall AI Stage score + breakdown.
+function computeScore() {
+  const usage = diagScore("dx_usage");
+  const depth = diagScore("dx_depth");
+  const automation = diagScore("dx_automation");
+  const comfort = diagScore("dx_comfort");
+  const opportunity = diagScore("dx_opportunity");
 
-// Multi-dimensional AI Automation Score with a breakdown.
-function computeScore(a) {
-  const lvl = Number(a.ai_level) || 1;
-  const skill = clampScore((lvl / 5) * 100);
-
-  const oppMap = { "0-2": 35, "3-5": 60, "6-10": 80, "10+": 100 };
-  const opportunity = oppMap[a.hours_lost] || 40;
-
-  const clarity = clampScore(
-    (textScore(a.problem) + textScore(a.goal) + textScore(a.obstacle)) / 3
-  );
-
-  const tn = countTools(a.tools);
-  const readiness = tn >= 3 ? 90 : tn === 2 ? 70 : tn === 1 ? 50 : 25;
-
+  const skill = Math.round((usage + depth) / 2);
   const overall = clampScore(
-    skill * 0.25 + opportunity * 0.3 + clarity * 0.25 + readiness * 0.2
+    skill * 0.3 + automation * 0.3 + comfort * 0.2 + opportunity * 0.2
   );
 
   return {
     overall,
     breakdown: [
-      { label: { en: "AI Experience", ar: "الخبرة بالذكاء الاصطناعي" }, value: skill, emoji: "🧠" },
-      { label: { en: "Automation Opportunity", ar: "فرص الأتمتة" }, value: opportunity, emoji: "⏳" },
-      { label: { en: "Goal Clarity", ar: "وضوح الهدف" }, value: clarity, emoji: "🎯" },
-      { label: { en: "Tool Readiness", ar: "جاهزية الأدوات" }, value: readiness, emoji: "🛠️" },
+      { label: { en: "AI Skill", ar: "مهارة الذكاء الاصطناعي" }, value: skill, emoji: "🧠" },
+      { label: { en: "Automation", ar: "الأتمتة" }, value: automation, emoji: "🔧" },
+      { label: { en: "Tech Comfort", ar: "الراحة التقنية" }, value: comfort, emoji: "🛠️" },
+      { label: { en: "Opportunity", ar: "الفرصة" }, value: opportunity, emoji: "⏳" },
     ],
   };
 }
 
-function scoreTier(s) {
-  if (s >= 80)
+// Stage label + message shown to the member.
+function aiStage(s) {
+  if (s >= 76)
     return {
-      label: { en: "🚀 Automation Ready", ar: "🚀 جاهز للأتمتة" },
+      label: { en: "Stage 4 · 🚀 Advanced", ar: "المستوى ٤ · 🚀 متقدم" },
       msg: {
-        en: "You're primed to turn AI into real hours back. Let's build.",
-        ar: "إنت جاهز تحوّل الذكاء الاصطناعي لساعات توفرها فعليًا. يلا نبدأ.",
+        en: "You're already building with AI — now let's make it systematic and scalable.",
+        ar: "إنت فعلاً تبني بالذكاء الاصطناعي — خلّينا نخليها منهجية وقابلة للتوسّع.",
       },
     };
-  if (s >= 60)
+  if (s >= 51)
     return {
-      label: { en: "⚡ High Potential", ar: "⚡ إمكانيات عالية" },
+      label: { en: "Stage 3 · 🔧 Builder", ar: "المستوى ٣ · 🔧 بانٍ" },
       msg: {
-        en: "Big wins are hiding in your week — we'll unlock them together.",
-        ar: "فيه مكاسب كبيرة مخبّأة في أسبوعك — بنفتحها مع بعض.",
+        en: "You've got real momentum. A few systems and you'll be saving serious hours.",
+        ar: "عندك زخم حقيقي. كم نظام وبتوفّر ساعات كثيرة.",
+      },
+    };
+  if (s >= 26)
+    return {
+      label: { en: "Stage 2 · ⚡ Beginner", ar: "المستوى ٢ · ⚡ مبتدئ" },
+      msg: {
+        en: "You've started — now it's about consistency and your first real automations.",
+        ar: "بدأت — الحين الموضوع ثبات وأول أتمتة حقيقية لك.",
       },
     };
   return {
-    label: { en: "🌱 Ready to Grow", ar: "🌱 جاهز تنمو" },
+    label: { en: "Stage 1 · 🌱 Explorer", ar: "المستوى ١ · 🌱 مستكشف" },
     msg: {
-      en: "A perfect starting point — the gains from here are the biggest.",
-      ar: "نقطة بداية مثالية — المكاسب من هنا هي الأكبر.",
+      en: "A perfect starting point. The foundations will change how you work, fast.",
+      ar: "نقطة بداية مثالية. الأساسيات بتغيّر طريقة شغلك بسرعة.",
     },
   };
+}
+
+// English stage name (no emoji) saved to the Sheet.
+function stageNameEN(s) {
+  if (s >= 76) return "Stage 4 · Advanced";
+  if (s >= 51) return "Stage 3 · Builder";
+  if (s >= 26) return "Stage 2 · Beginner";
+  return "Stage 1 · Explorer";
 }
 
 // Fixed unlock path. Course names stay in Arabic (proper names); tags/notes translate.
@@ -211,29 +214,33 @@ const LEARNING_PATH = [
   { tag: { en: "Level 3", ar: "المستوى 3" }, course: "🎁 مكتبة الورشات الخاصة", note: { en: "Your reward for giving back to the community", ar: "مكافأة تفاعلك وعطائك للمجتمع" } },
 ];
 
-function recommendLine(a) {
-  const lvl = Number(a.ai_level) || 1;
-  if (lvl <= 2)
+function recommendLine(overall) {
+  if (overall >= 76)
     return {
-      en: "You're at the start of your AI journey — the best time to begin. Take it step by step; foundations matter more than speed. Don't skip sections.",
-      ar: "إنت في بداية طريقك مع الذكاء الاصطناعي، وهذا أفضل وقت تبدأ فيه. خذها خطوة بخطوة — الأساس أهم من السرعة، ولا تتجاوز الأقسام.",
+      en: "You're advanced — move fast through the foundations to fill any gaps, then aim for Level 3 to unlock the private workshops and company systems.",
+      ar: "إنت متقدّم — مرّ بسرعة على الأساسيات تسد أي ثغرة، وبعدها اهدف للمستوى الثالث وتفتح الورشات الخاصة وأنظمة الشركات.",
     };
-  if (lvl === 3)
+  if (overall >= 51)
     return {
-      en: "You've got a solid base. Focus on Automation + Claude in your first 30 days, and you'll be ready to build your app with confidence.",
-      ar: "عندك أساس جيد. ركّز على الأتمتة وكلود في أول 30 يوم، وبتكون جاهز تبني تطبيقك بثقة.",
+      en: "You've got a solid base. Lock in Automation + Claude in your first 30 days and you'll be ready to build your app with confidence.",
+      ar: "عندك أساس جيد. ثبّت الأتمتة وكلود في أول 30 يوم وبتكون جاهز تبني تطبيقك بثقة.",
+    };
+  if (overall >= 26)
+    return {
+      en: "You've started — now it's about consistency. Do the daily task in every video and build your first real automations.",
+      ar: "بدأت — الحين الموضوع ثبات. نفّذ مهمة كل فيديو يوميًا وابنِ أول أتمتة حقيقية لك.",
     };
   return {
-    en: "Your experience is strong and you'll move fast — lock in the fundamentals first, and aim for Level 3 to unlock the private workshops.",
-    ar: "خبرتك ممتازة وبتتحرك بسرعة — ثبّت الأساسيات أول، وخلّي هدفك توصل المستوى الثالث وتفتح الورشات الخاصة.",
+    en: "Perfect starting point. Take it step by step — foundations matter more than speed. Don't skip any section.",
+    ar: "نقطة بداية مثالية. خذها خطوة بخطوة — الأساس أهم من السرعة. لا تتجاوز أي قسم.",
   };
 }
 
 function renderThankYou(q) {
   const wrap = el("div", "center");
-  const result = computeScore(answers);
+  const result = computeScore();
   const score = result.overall;
-  const tier = scoreTier(score);
+  const tier = aiStage(score);
   const where = q.community || "the community";
   const dir = LANG === "ar" ? "rtl" : "ltr";
 
@@ -262,7 +269,7 @@ function renderThankYou(q) {
 
     <div class="reco" dir="${dir}">
       <div class="reco__title">${t(UI.recoTitle)}</div>
-      <div class="reco__line">${t(recommendLine(answers))}</div>
+      <div class="reco__line">${t(recommendLine(score))}</div>
       <ol class="reco__list">
         ${LEARNING_PATH.map(
           (s) => `<li>
@@ -349,6 +356,8 @@ function renderQuestion(q) {
     control = renderChoice(q);
   } else if (q.type === "rating") {
     control = renderRating(q);
+  } else if (q.type === "select") {
+    control = renderSelect(q);
   }
 
   field.appendChild(control);
@@ -368,7 +377,7 @@ function renderQuestion(q) {
   err.id = "err";
   wrap.appendChild(err);
 
-  if (q.type !== "choice" && q.type !== "rating") {
+  if (q.type !== "choice" && q.type !== "rating" && q.type !== "select") {
     const row = el("div", "ok-row");
     const ok = button(isLast() ? t(UI.submit) : t(UI.ok), "btn btn--primary");
     ok.addEventListener("click", goNext);
@@ -397,6 +406,35 @@ function renderChoice(q) {
     list.appendChild(o);
   });
   return list;
+}
+
+function renderSelect(q) {
+  const wrap = el("div");
+  const sel = document.createElement("select");
+  sel.className = "select-input";
+
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.textContent = t(UI.selectPlaceholder);
+  ph.disabled = true;
+  ph.selected = !answers[q.id];
+  sel.appendChild(ph);
+
+  q.options.forEach((opt) => {
+    const o = document.createElement("option");
+    o.value = opt.value;
+    o.textContent = t(opt.label);
+    if (answers[q.id] === opt.value) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  sel.addEventListener("change", () => {
+    answers[q.id] = sel.value;
+    setTimeout(goNext, 250);
+  });
+
+  wrap.appendChild(sel);
+  return wrap;
 }
 
 function renderRating(q) {
@@ -506,7 +544,14 @@ document.addEventListener("keydown", (e) => {
 
 async function submit() {
   const errEl = document.getElementById("err");
-  const payload = { ...answers, lang: LANG, submitted_at: new Date().toISOString() };
+  const result = computeScore();
+  const payload = {
+    ...answers,
+    ai_score: result.overall,
+    ai_stage: stageNameEN(result.overall),
+    lang: LANG,
+    submitted_at: new Date().toISOString(),
+  };
 
   if (!CONFIG.ENDPOINT) {
     console.log("DEMO MODE — submission payload:", payload);
