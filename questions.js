@@ -52,7 +52,7 @@ const QUESTIONS = [
     title: { en: "Which program did you join?", ar: "أي برنامج اشتركت فيه؟" },
     required: true,
     options: [
-      { label: { en: "The $68 Community", ar: "مجتمع الـ ٦٨$" }, value: "Community ($68)" },
+      { label: { en: "مجلس الاتمته +", ar: "مجلس الاتمته +" }, value: "مجلس الاتمته +" },
       { label: { en: "1:1 / Coaching Program", ar: "برنامج الكوتشينج / ١:١" }, value: "Coaching" },
       { label: { en: "Both", ar: "الاثنين" }, value: "Both" },
     ],
