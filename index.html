@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Coaching — Member Assessment</title>
+  <meta name="description" content="2-minute setup so our calls actually move your needle." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="progress"><div class="progress__bar" id="progressBar"></div></div>
+
+  <main class="stage" id="stage" aria-live="polite"></main>
+
+  <footer class="nav">
+    <div class="nav__hint" id="navHint">
+      press <strong>Enter ↵</strong>
+    </div>
+    <div class="nav__btns">
+      <button class="btn btn--ghost" id="backBtn" type="button" aria-label="Previous question">↑</button>
+      <button class="btn btn--ghost" id="nextBtn" type="button" aria-label="Next question">↓</button>
+    </div>
+  </footer>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
