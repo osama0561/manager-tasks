@@ -3,6 +3,11 @@
    Submits answers to a Google Apps Script Web App (see CONFIG).
    ============================================================ */
 
+// Image of the keyboard mic/dictation button. Drop the file in /assets and it
+// shows on the welcome screen and long-answer questions. Missing file = hidden.
+const VOICE_IMG = "assets/keyboard-mic.png";
+const ONERR = "this.style.display='none'";
+
 const CONFIG = {
   // Paste the Web App URL you get from deploying google-apps-script.gs.
   // Leave "" to run in demo mode (answers logged to console + downloaded as JSON).
@@ -39,9 +44,15 @@ function render() {
   if (focusable) setTimeout(() => focusable.focus(), 120);
 }
 
+function brandLogo() {
+  // Renders the logo if assets/logo.png exists; otherwise hides itself.
+  return `<img class="brand-logo" src="assets/logo.png" alt="Logo" onerror="${ONERR}" />`;
+}
+
 function renderWelcome(q) {
   const wrap = el("div", "center");
   wrap.innerHTML = `
+    ${brandLogo()}
     <div class="q-title">${q.title}</div>
     <div class="q-sub">${q.subtitle}</div>
   `;
@@ -49,7 +60,7 @@ function renderWelcome(q) {
   if (q.voiceTip) {
     const tip = el("div", "voice-tip");
     const visual = q.voiceImage
-      ? `<img class="voice-tip__img" src="${q.voiceImage}" alt="Tap the microphone on your keyboard" />`
+      ? `<img class="voice-tip__img" src="${q.voiceImage}" alt="Tap the microphone on your keyboard" onerror="${ONERR}" />`
       : `<div class="voice-tip__mic" aria-hidden="true">🎤</div>`;
     tip.innerHTML = `
       ${visual}
@@ -64,13 +75,62 @@ function renderWelcome(q) {
   return wrap;
 }
 
+function computeScore(a) {
+  // A motivating "AI Automation Score" out of 100. Higher = more ready + more
+  // to gain. Always lands in an encouraging range so it's nice to share.
+  let score = 50;
+  const lvl = Number(a.ai_level) || 1;
+  score += lvl * 5; // experience: 5–25
+  const hoursPts = { "0-2": 5, "3-5": 10, "6-10": 15, "10+": 20 };
+  score += hoursPts[a.hours_lost] || 5; // opportunity: 5–20
+  ["problem", "obstacle", "goal"].forEach((k) => {
+    if (a[k] && String(a[k]).trim().length >= 20) score += 5; // engagement: 0–15
+  });
+  return Math.min(100, score);
+}
+
+function scoreTier(s) {
+  if (s >= 85)
+    return { label: "🚀 Automation Ready", msg: "You're primed to turn AI into real hours back. Let's build." };
+  if (s >= 70)
+    return { label: "⚡ High Potential", msg: "Big wins are hiding in your week — we'll unlock them together." };
+  return { label: "🌱 Ready to Grow", msg: "A perfect starting point — the gains from here are the biggest." };
+}
+
 function renderThankYou(q) {
   const wrap = el("div", "center");
+  const score = computeScore(answers);
+  const tier = scoreTier(score);
+  const where = q.community || "the community";
   wrap.innerHTML = `
-    <div class="big-emoji">🎉</div>
+    ${brandLogo()}
     <div class="q-title">${q.title}</div>
-    <div class="q-sub">${q.subtitle}</div>
+    <div class="score-ring" style="--val:0">
+      <div class="score-ring__inner">
+        <span class="score-num">0</span><span class="score-max">/100</span>
+      </div>
+    </div>
+    <div class="score-tier">${tier.label}</div>
+    <div class="q-sub">${tier.msg}</div>
+    <div class="score-share">
+      📸 <strong>Screenshot this score</strong> and share it in ${where} —
+      let's see where you're starting from!
+    </div>
   `;
+
+  // Animate the ring + number counting up.
+  const ring = wrap.querySelector(".score-ring");
+  const num = wrap.querySelector(".score-num");
+  let cur = 0;
+  const inc = Math.max(1, Math.round(score / 45));
+  const tick = () => {
+    cur = Math.min(score, cur + inc);
+    ring.style.setProperty("--val", cur);
+    num.textContent = cur;
+    if (cur < score) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+
   return wrap;
 }
 
@@ -126,6 +186,16 @@ function renderQuestion(q) {
 
   field.appendChild(control);
   wrap.appendChild(field);
+
+  // Voice reminder on long-answer questions — nudges them to dictate.
+  if (q.type === "long_text") {
+    const vh = el("div", "voice-hint");
+    vh.innerHTML = `
+      <img class="voice-hint__img" src="${VOICE_IMG}" alt="" onerror="${ONERR}" />
+      <span>Tip: tap the 🎤 on your keyboard and just talk — say as much as you want.</span>
+    `;
+    wrap.appendChild(vh);
+  }
 
   const err = el("div", "error-msg");
   err.id = "err";

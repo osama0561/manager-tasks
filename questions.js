@@ -13,9 +13,9 @@ const QUESTIONS = [
     // 🎤 Voice nudge — encourages longer, richer answers.
     voiceTip:
       "Don't type — talk. Tap the 🎤 microphone on your keyboard and just answer out loud. The more you say, the more I understand you.",
-    // Optional: drop a real screenshot in the repo and set its filename here
-    // (e.g. "keyboard-mic.png") to show it instead of the built-in icon.
-    voiceImage: "",
+    // Shows your keyboard screenshot from /assets. If the file is missing the
+    // image simply hides (the tip text still shows). Set "" to use the 🎤 icon.
+    voiceImage: "assets/keyboard-mic.png",
     cta: "Start →",
   },
 
@@ -127,8 +127,8 @@ const QUESTIONS = [
 
   {
     type: "thankyou",
-    title: "You're all set 🎉",
-    subtitle:
-      "I've got everything I need to make our next call count. See you there.",
+    title: "Your AI Automation Score",
+    // The community handle/name to nudge sharing — edit to match yours.
+    community: "the community",
   },
 ];
