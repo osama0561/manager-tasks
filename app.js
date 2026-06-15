@@ -124,20 +124,59 @@ function renderWelcome(q) {
 
 /* ---------- Score + recommendation ---------- */
 
+function clampScore(n) {
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+// Score the depth/quality of a free-text answer.
+function textScore(s) {
+  const len = s ? String(s).trim().length : 0;
+  if (len === 0) return 0;
+  if (len < 20) return 45;
+  if (len < 80) return 75;
+  return 100;
+}
+
+function countTools(s) {
+  if (!s) return 0;
+  return String(s)
+    .split(/[,،\n/|]| و /)
+    .map((x) => x.trim())
+    .filter(Boolean).length;
+}
+
+// Multi-dimensional AI Automation Score with a breakdown.
 function computeScore(a) {
-  let score = 50;
   const lvl = Number(a.ai_level) || 1;
-  score += lvl * 5; // experience: 5–25
-  const hoursPts = { "0-2": 5, "3-5": 10, "6-10": 15, "10+": 20 };
-  score += hoursPts[a.hours_lost] || 5; // opportunity: 5–20
-  ["problem", "obstacle", "goal"].forEach((k) => {
-    if (a[k] && String(a[k]).trim().length >= 20) score += 5; // engagement: 0–15
-  });
-  return Math.min(100, score);
+  const skill = clampScore((lvl / 5) * 100);
+
+  const oppMap = { "0-2": 35, "3-5": 60, "6-10": 80, "10+": 100 };
+  const opportunity = oppMap[a.hours_lost] || 40;
+
+  const clarity = clampScore(
+    (textScore(a.problem) + textScore(a.goal) + textScore(a.obstacle)) / 3
+  );
+
+  const tn = countTools(a.tools);
+  const readiness = tn >= 3 ? 90 : tn === 2 ? 70 : tn === 1 ? 50 : 25;
+
+  const overall = clampScore(
+    skill * 0.25 + opportunity * 0.3 + clarity * 0.25 + readiness * 0.2
+  );
+
+  return {
+    overall,
+    breakdown: [
+      { label: { en: "AI Experience", ar: "الخبرة بالذكاء الاصطناعي" }, value: skill, emoji: "🧠" },
+      { label: { en: "Automation Opportunity", ar: "فرص الأتمتة" }, value: opportunity, emoji: "⏳" },
+      { label: { en: "Goal Clarity", ar: "وضوح الهدف" }, value: clarity, emoji: "🎯" },
+      { label: { en: "Tool Readiness", ar: "جاهزية الأدوات" }, value: readiness, emoji: "🛠️" },
+    ],
+  };
 }
 
 function scoreTier(s) {
-  if (s >= 85)
+  if (s >= 80)
     return {
       label: { en: "🚀 Automation Ready", ar: "🚀 جاهز للأتمتة" },
       msg: {
@@ -145,7 +184,7 @@ function scoreTier(s) {
         ar: "إنت جاهز تحوّل الذكاء الاصطناعي لساعات توفرها فعليًا. يلا نبدأ.",
       },
     };
-  if (s >= 70)
+  if (s >= 60)
     return {
       label: { en: "⚡ High Potential", ar: "⚡ إمكانيات عالية" },
       msg: {
@@ -192,7 +231,8 @@ function recommendLine(a) {
 
 function renderThankYou(q) {
   const wrap = el("div", "center");
-  const score = computeScore(answers);
+  const result = computeScore(answers);
+  const score = result.overall;
   const tier = scoreTier(score);
   const where = q.community || "the community";
   const dir = LANG === "ar" ? "rtl" : "ltr";
@@ -207,6 +247,18 @@ function renderThankYou(q) {
     </div>
     <div class="score-tier">${t(tier.label)}</div>
     <div class="q-sub">${t(tier.msg)}</div>
+
+    <div class="breakdown" dir="${dir}">
+      ${result.breakdown
+        .map(
+          (b) => `<div class="bd-row">
+            <span class="bd-label">${b.emoji} ${t(b.label)}</span>
+            <span class="bd-bar"><span class="bd-fill" style="width:0%" data-val="${b.value}"></span></span>
+            <span class="bd-val">${b.value}</span>
+          </div>`
+        )
+        .join("")}
+    </div>
 
     <div class="reco" dir="${dir}">
       <div class="reco__title">${t(UI.recoTitle)}</div>
@@ -240,6 +292,13 @@ function renderThankYou(q) {
     if (cur < score) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
+
+  // Animate the breakdown bars filling in.
+  setTimeout(() => {
+    wrap.querySelectorAll(".bd-fill").forEach((f) => {
+      f.style.width = f.dataset.val + "%";
+    });
+  }, 200);
 
   return wrap;
 }

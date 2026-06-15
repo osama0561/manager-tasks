@@ -211,6 +211,24 @@ html, body {
   font-size: 15px; line-height: 1.5; color: var(--fg);
 }
 
+/* Score breakdown bars */
+.breakdown {
+  max-width: 440px; margin: 18px auto 0;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.bd-row { display: flex; align-items: center; gap: 12px; }
+.bd-label { flex: 0 0 42%; text-align: start; font-size: 14px; color: var(--fg); }
+.bd-bar {
+  flex: 1; height: 8px; border-radius: 999px;
+  background: rgba(255,255,255,.08); overflow: hidden;
+}
+.bd-fill {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  transition: width 1s cubic-bezier(.16,1,.3,1);
+}
+.bd-val { flex: 0 0 auto; width: 28px; text-align: end; font-size: 14px; font-weight: 600; color: var(--brand); }
+
 /* Course recommendation (start-here path) */
 .reco {
   max-width: 520px; margin: 26px auto 0; text-align: start;
