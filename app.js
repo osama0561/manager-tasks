@@ -280,11 +280,14 @@ async function submit() {
 
   try {
     if (errEl) errEl.textContent = "Saving…";
+    // Send as form-encoded fields (URLSearchParams). This survives Apps Script's
+    // redirect — a JSON body does not — and is read via e.parameter on the script.
+    const form = new URLSearchParams();
+    Object.keys(payload).forEach((k) => form.append(k, payload[k]));
     await fetch(CONFIG.ENDPOINT, {
       method: "POST",
       mode: "no-cors", // Apps Script web apps need this
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload),
+      body: form,
     });
     advanceToThankYou();
   } catch (err) {

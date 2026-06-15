@@ -39,13 +39,20 @@ var COLUMNS = [
 
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
+    var data = {};
+    // Form-encoded fields (what the app now sends) arrive in e.parameter.
+    if (e && e.parameter && Object.keys(e.parameter).length > 0) {
+      data = e.parameter;
+    } else if (e && e.postData && e.postData.contents) {
+      // Fallback: JSON body, for backwards compatibility.
+      data = JSON.parse(e.postData.contents);
+    }
     var sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
     var row = COLUMNS.map(function (key) {
       return data[key] !== undefined ? data[key] : "";
     });
     sheet.appendRow(row);
-    return json({ status: "ok" });
+    return json({ status: "ok", saved: row });
   } catch (err) {
     return json({ status: "error", message: String(err) });
   }
