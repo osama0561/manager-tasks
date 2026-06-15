@@ -265,6 +265,14 @@ html, body {
 .reco__body { display: flex; flex-direction: column; gap: 2px; }
 .reco__course { font-size: 16px; font-weight: 600; color: var(--fg); }
 .reco__note { font-size: 13px; color: var(--muted); }
+.reco__btn {
+  align-self: flex-start; margin-top: 8px; text-decoration: none;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  color: #06231f; font-weight: 700; font-size: 13px;
+  padding: 7px 14px; border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(138,240,230,.25); transition: all .15s;
+}
+.reco__btn:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(138,240,230,.4); }
 
 /* Welcome / thank-you */
 .center { text-align: center; }

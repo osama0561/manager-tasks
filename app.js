@@ -40,6 +40,7 @@ const UI = {
     ar: "نصيحة: اضغط 🎤 في لوحة المفاتيح وتكلّم — قول اللي تبي بدون ما تكتب.",
   },
   selectPlaceholder: { en: "Choose one…", ar: "اختر إجابة…" },
+  startBtn: { en: "Start now →", ar: "ابدأ الآن →" },
   recoTitle: { en: "📍 Where to start", ar: "📍 من وين تبدأ" },
   shareCta: {
     en: "📸 <strong>Screenshot your score & path</strong> and share it in {where} — show us where you're starting! 🚀",
@@ -207,11 +208,11 @@ function stageNameEN(s) {
 // Fixed unlock path. Course names stay in Arabic (proper names); tags/notes translate.
 const LEARNING_PATH = [
   { tag: { en: "Start now", ar: "ابدأ الآن" }, course: "🚀 (ابدأ هنا)", note: { en: "Learn the platform from your phone — don't skip it", ar: "تعلّم المنصة من جوالك — لا تتجاوز هذا القسم" } },
-  { tag: { en: "Start now", ar: "ابدأ الآن" }, course: "⚙️ أساسيات الأتمتة", note: { en: "Do the task in every video, daily", ar: "نفّذ مهمة كل فيديو يوميًا" } },
-  { tag: { en: "Level 2", ar: "المستوى 2" }, course: "🤖 معسكر claude ai", note: { en: "Aim to reach it within your first 30 days", ar: "اهدف توصله خلال أول 30 يوم" } },
-  { tag: { en: "After 30 days", ar: "بعد 30 يوم" }, course: "📱 كيف تبني تطبيقات بالذكاء الاصطناعي", note: { en: "Build your app on a strong foundation", ar: "تبني تطبيقك بأساس قوي" } },
-  { tag: { en: "After 30 days", ar: "بعد 30 يوم" }, course: "🏢 مكتبة أنظمة الشركات", note: { en: "Advanced systems from real-world builds", ar: "أنظمة متقدمة من تجارب حقيقية" } },
-  { tag: { en: "Level 3", ar: "المستوى 3" }, course: "🎁 مكتبة الورشات الخاصة", note: { en: "Your reward for giving back to the community", ar: "مكافأة تفاعلك وعطائك للمجتمع" } },
+  { tag: { en: "Start now", ar: "ابدأ الآن" }, course: "⚙️ أساسيات الأتمتة", note: { en: "Do the task in every video, daily", ar: "نفّذ مهمة كل فيديو يوميًا" }, url: "https://www.skool.com/majles/classroom/4b8cdf5e?md=63ab67479d02495384b5d3387cd62b01" },
+  { tag: { en: "Level 2", ar: "المستوى 2" }, course: "🤖 معسكر claude ai", note: { en: "Aim to reach it within your first 30 days", ar: "اهدف توصله خلال أول 30 يوم" }, url: "https://www.skool.com/majles/classroom/5758d2fa?md=e9d359e8653e4232aed3a689eccad28d" },
+  { tag: { en: "After 30 days", ar: "بعد 30 يوم" }, course: "📱 كيف تبني تطبيقات بالذكاء الاصطناعي", note: { en: "Build your app on a strong foundation", ar: "تبني تطبيقك بأساس قوي" }, url: "https://www.skool.com/majles/classroom/9cab42e6?md=27e7074d2f424758b6219dfe737bce4e" },
+  { tag: { en: "After 30 days", ar: "بعد 30 يوم" }, course: "🏢 مكتبة أنظمة الشركات", note: { en: "Advanced systems from real-world builds", ar: "أنظمة متقدمة من تجارب حقيقية" }, url: "https://www.skool.com/majles/classroom/26a39c59?md=7509228184c44612ad125caea763cfb6" },
+  { tag: { en: "Level 3", ar: "المستوى 3" }, course: "🎁 مكتبة الورشات الخاصة", note: { en: "Your reward for giving back to the community", ar: "مكافأة تفاعلك وعطائك للمجتمع" }, url: "https://www.skool.com/majles/classroom/26228d88?md=bfaec4103713422a9434e0bc08aba4fc" },
 ];
 
 function recommendLine(overall) {
@@ -277,6 +278,7 @@ function renderThankYou(q) {
             <span class="reco__body">
               <span class="reco__course">${s.course}</span>
               <span class="reco__note">${t(s.note)}</span>
+              ${s.url ? `<a class="reco__btn" href="${s.url}" target="_blank" rel="noopener">${t(UI.startBtn)}</a>` : ""}
             </span>
           </li>`
         ).join("")}
