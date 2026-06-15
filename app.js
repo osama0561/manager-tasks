@@ -45,6 +45,19 @@ function renderWelcome(q) {
     <div class="q-title">${q.title}</div>
     <div class="q-sub">${q.subtitle}</div>
   `;
+
+  if (q.voiceTip) {
+    const tip = el("div", "voice-tip");
+    const visual = q.voiceImage
+      ? `<img class="voice-tip__img" src="${q.voiceImage}" alt="Tap the microphone on your keyboard" />`
+      : `<div class="voice-tip__mic" aria-hidden="true">🎤</div>`;
+    tip.innerHTML = `
+      ${visual}
+      <div class="voice-tip__text">${q.voiceTip}</div>
+    `;
+    wrap.appendChild(tip);
+  }
+
   const btn = button(q.cta || "Start →", "btn btn--primary");
   btn.addEventListener("click", goNext);
   wrap.appendChild(btn);

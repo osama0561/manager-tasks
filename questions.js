@@ -10,6 +10,12 @@ const QUESTIONS = [
     title: "Let's make our calls actually move your needle.",
     subtitle:
       "2 minutes, 12 questions. The more honest you are, the more useful I can be on every call.",
+    // 🎤 Voice nudge — encourages longer, richer answers.
+    voiceTip:
+      "Don't type — talk. Tap the 🎤 microphone on your keyboard and just answer out loud. The more you say, the more I understand you.",
+    // Optional: drop a real screenshot in the repo and set its filename here
+    // (e.g. "keyboard-mic.png") to show it instead of the built-in icon.
+    voiceImage: "",
     cta: "Start →",
   },
 
