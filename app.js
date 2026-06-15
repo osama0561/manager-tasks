@@ -280,15 +280,10 @@ async function submit() {
 
   try {
     if (errEl) errEl.textContent = "Saving…";
-    // Send as form-encoded fields (URLSearchParams). This survives Apps Script's
-    // redirect — a JSON body does not — and is read via e.parameter on the script.
-    const form = new URLSearchParams();
-    Object.keys(payload).forEach((k) => form.append(k, payload[k]));
-    await fetch(CONFIG.ENDPOINT, {
-      method: "POST",
-      mode: "no-cors", // Apps Script web apps need this
-      body: form,
-    });
+    // Submit as a GET with query params. Query params survive Apps Script's
+    // redirect (they stay in the URL), so this is the most reliable method.
+    const qs = new URLSearchParams(payload).toString();
+    await fetch(CONFIG.ENDPOINT + "?" + qs, { mode: "no-cors" });
     advanceToThankYou();
   } catch (err) {
     console.error(err);

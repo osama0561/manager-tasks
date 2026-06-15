@@ -37,16 +37,18 @@ var COLUMNS = [
   "pre_call_brief", // filled later by your AI brief
 ];
 
-function doPost(e) {
+// Both GET and POST go through here, so the app can submit either way and you
+// can also test by simply visiting a URL with ?name=...&email=... in a browser.
+function handle(e) {
   try {
-    var data = {};
-    // Form-encoded fields (what the app now sends) arrive in e.parameter.
-    if (e && e.parameter && Object.keys(e.parameter).length > 0) {
-      data = e.parameter;
-    } else if (e && e.postData && e.postData.contents) {
-      // Fallback: JSON body, for backwards compatibility.
-      data = JSON.parse(e.postData.contents);
+    var data = (e && e.parameter) ? e.parameter : {};
+    // Fallback: JSON body, for backwards compatibility.
+    if (!hasData(data) && e && e.postData && e.postData.contents) {
+      try { data = JSON.parse(e.postData.contents); } catch (_) {}
     }
+    // No real data → health check.
+    if (!hasData(data)) return json({ status: "alive" });
+
     var sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
     var row = COLUMNS.map(function (key) {
       return data[key] !== undefined ? data[key] : "";
@@ -58,9 +60,12 @@ function doPost(e) {
   }
 }
 
-function doGet() {
-  return json({ status: "alive" });
+function hasData(d) {
+  return d && (d.name || d.email || d.problem || d.community);
 }
+
+function doGet(e) { return handle(e); }
+function doPost(e) { return handle(e); }
 
 function json(obj) {
   return ContentService
