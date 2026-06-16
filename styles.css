@@ -163,7 +163,13 @@ html, body {
 .brand-logo {
   display: block; width: 260px; height: 120px;
   object-fit: cover; object-position: center;
-  margin: 0 auto 18px;
+  margin: 0 auto 6px;
+}
+.brand-name {
+  display: inline-block; margin: 0 auto 18px;
+  color: var(--brand); font-weight: 700; font-size: 18px;
+  background: rgba(138,240,230,.10); border: 1px solid rgba(138,240,230,.30);
+  border-radius: 999px; padding: 5px 16px;
 }
 
 /* Voice hint on long-answer questions */

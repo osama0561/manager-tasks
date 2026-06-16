@@ -47,17 +47,6 @@ const QUESTIONS = [
     required: true,
   },
   {
-    id: "community",
-    type: "choice",
-    title: { en: "Which program did you join?", ar: "أي برنامج اشتركت فيه؟" },
-    required: true,
-    options: [
-      { label: { en: "مجلس الاتمته +", ar: "مجلس الاتمته +" }, value: "مجلس الاتمته +" },
-      { label: { en: "1:1 / Coaching Program", ar: "برنامج الكوتشينج / ١:١" }, value: "Coaching" },
-      { label: { en: "Both", ar: "الاثنين" }, value: "Both" },
-    ],
-  },
-  {
     id: "role",
     type: "short_text",
     title: { en: "What's your role and industry?", ar: "وش دورك ومجال شغلك؟" },

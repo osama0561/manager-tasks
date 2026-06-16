@@ -11,9 +11,15 @@
 
 var SHEET_ID = "18MfNoDbJsFxcZk_Obmf2s6KW4ocKcaHC2IOzi4rijXM";
 
+// Each brand writes to its own tab (created automatically if missing).
+var TABS = {
+  coaching: "اتمتها (Coaching)",
+  community: "مجلس الاتمته + (Community)",
+};
+
 // Payload keys, in column order.
 var COLUMNS = [
-  "submitted_at", "name", "email", "community", "role",
+  "submitted_at", "name", "email", "brand", "role",
   "dx_usage", "dx_depth", "dx_automation", "dx_comfort", "dx_opportunity",
   "ai_score", "ai_stage",
   "problem", "obstacle", "goal", "belief", "wants",
@@ -22,7 +28,7 @@ var COLUMNS = [
 
 // Friendly header labels (row 1), same order as COLUMNS.
 var HEADERS = [
-  "Timestamp", "Name", "Email", "Program", "Role / Industry",
+  "Timestamp", "Name", "Email", "Brand", "Role / Industry",
   "AI Usage", "AI Depth", "Automation Exp", "Tech Comfort", "Opportunity",
   "AI Score", "AI Stage",
   "Biggest Problem", "Main Obstacle", "90-Day Goal", "Belief / Fear", "Wants from Calls",
@@ -37,7 +43,7 @@ function handle(e) {
     }
     if (!hasData(data)) return json({ status: "alive" });
 
-    var sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
+    var sheet = sheetFor(data.brand_key);
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]); // keep headers correct
     var row = COLUMNS.map(function (key) {
       return data[key] !== undefined ? data[key] : "";
@@ -47,6 +53,18 @@ function handle(e) {
   } catch (err) {
     return json({ status: "error", message: String(err) });
   }
+}
+
+// Return the tab for a brand, creating it (with a header row) if needed.
+function sheetFor(brandKey) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var name = TABS[brandKey] || TABS.community;
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  }
+  return sheet;
 }
 
 function hasData(d) {

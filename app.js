@@ -7,6 +7,16 @@
 const VOICE_IMG = "assets/keyboard-mic.png";
 const ONERR = "this.style.display='none'";
 
+/* ---------- Brand (two versions, one link) ----------
+   Low-ticket community is the default. Open with ?b=coaching for the
+   high-ticket coaching brand. Same questions — only the brand differs. */
+const BRANDS = {
+  community: { key: "community", name: "مجلس الاتمته +", logo: "assets/logo.png" },
+  coaching: { key: "coaching", name: "اتمتها", logo: "assets/logo-atmatha.png" },
+};
+const BRAND =
+  BRANDS[new URLSearchParams(location.search).get("b")] || BRANDS.community;
+
 const CONFIG = {
   // Paste the Web App URL from deploying google-apps-script.gs.
   // Leave "" for demo mode (answers download as JSON).
@@ -102,13 +112,16 @@ function render() {
 }
 
 function brandLogo() {
-  return `<img class="brand-logo" src="assets/logo.png" alt="Logo" onerror="${ONERR}" />`;
+  // Try the brand logo; fall back to the default logo; then hide if neither exists.
+  return `<img class="brand-logo" src="${BRAND.logo}" alt="Logo"
+    onerror="if(this.dataset.fb){this.style.display='none'}else{this.dataset.fb=1;this.src='assets/logo.png'}" />`;
 }
 
 function renderWelcome(q) {
   const wrap = el("div", "center");
   wrap.innerHTML = `
     ${brandLogo()}
+    <div class="brand-name">${BRAND.name}</div>
     <div class="q-title">${t(q.title)}</div>
     <div class="q-sub">${t(q.subtitle)}</div>
   `;
@@ -246,7 +259,7 @@ function renderThankYou(q) {
   const result = computeScore();
   const score = result.overall;
   const tier = aiStage(score);
-  const where = q.community || "the community";
+  const where = BRAND.name;
   const dir = LANG === "ar" ? "rtl" : "ltr";
 
   wrap.innerHTML = `
@@ -555,6 +568,8 @@ async function submit() {
   const result = computeScore();
   const payload = {
     ...answers,
+    brand: BRAND.name,
+    brand_key: BRAND.key,
     ai_score: result.overall,
     ai_stage: stageNameEN(result.overall),
     lang: LANG,
