@@ -7,15 +7,21 @@
 const VOICE_IMG = "assets/keyboard-mic.png";
 const ONERR = "this.style.display='none'";
 
-/* ---------- Brand (two versions, one link) ----------
-   Low-ticket community is the default. Open with ?b=coaching for the
-   high-ticket coaching brand. Same questions — only the brand differs. */
+/* ---------- Brand / version (one link, multiple versions) ----------
+   Default = low-ticket community. Open with:
+     ?b=coaching  → high-ticket coaching (اتمتها)
+     ?b=10x       → 10x work-profile builder
+   `questions` picks the question set; `mode` picks the scoring;
+   `coursePath` shows the مجلس course recommendations. */
 const BRANDS = {
-  community: { key: "community", name: "مجلس الاتمته +", logo: "assets/logo.png" },
-  coaching: { key: "coaching", name: "اتمتها", logo: "assets/logo-atmatha.png" },
+  community: { key: "community", name: "مجلس الاتمته +", logo: "assets/logo.png", questions: "default", mode: "diagnostic", coursePath: true },
+  coaching: { key: "coaching", name: "اتمتها", logo: "assets/logo-atmatha.png", questions: "default", mode: "diagnostic", coursePath: true },
+  "10x": { key: "10x", name: "10x", logo: "assets/logo-10x.png", questions: "tenx", mode: "completeness", coursePath: false },
 };
 const BRAND =
   BRANDS[new URLSearchParams(location.search).get("b")] || BRANDS.community;
+
+const QUESTIONS = QUESTION_SETS[BRAND.questions] || QUESTION_SETS.default;
 
 const CONFIG = {
   // Paste the Web App URL from deploying google-apps-script.gs.
@@ -155,8 +161,73 @@ function diagScore(qid) {
   return opt ? opt.score || 0 : 0;
 }
 
-// The algorithm: 5 diagnostic answers → overall AI Stage score + breakdown.
+// Depth of a free-text answer (0–100) — rewards concrete detail.
+function textScore(s) {
+  const len = s ? String(s).trim().length : 0;
+  if (len === 0) return 0;
+  if (len < 40) return 40;
+  if (len < 120) return 70;
+  return 100;
+}
+
+// 10x completeness score: how thorough the work profile is, by section.
+function completenessScore() {
+  const sections = [
+    { label: { en: "Who You Are", ar: "من أنت" }, ids: ["tx1", "tx2", "tx3", "tx4"], emoji: "🏢" },
+    { label: { en: "Responsibilities", ar: "المسؤوليات" }, ids: ["tx5", "tx6", "tx7"], emoji: "📋" },
+    { label: { en: "Your Day", ar: "يومك" }, ids: ["tx8", "tx9", "tx10", "tx11"], emoji: "📆" },
+    { label: { en: "Tools & Data", ar: "الأدوات والبيانات" }, ids: ["tx12", "tx13"], emoji: "🛠️" },
+    { label: { en: "Pain Points", ar: "مضيّعات الوقت" }, ids: ["tx14", "tx15"], emoji: "🔥" },
+  ];
+  const breakdown = sections.map((s) => ({
+    label: s.label,
+    emoji: s.emoji,
+    value: clampScore(s.ids.reduce((a, id) => a + textScore(answers[id]), 0) / s.ids.length),
+  }));
+  const overall = clampScore(breakdown.reduce((a, b) => a + b.value, 0) / breakdown.length);
+  return { overall, breakdown };
+}
+
+function profileTier(s) {
+  if (s >= 80)
+    return {
+      label: { en: "🟢 AI-Ready Profile", ar: "🟢 ملف جاهز للذكاء الاصطناعي" },
+      msg: {
+        en: "Detailed and clear — any AI can now understand your work and suggest real tasks to automate.",
+        ar: "مفصّل وواضح — أي ذكاء اصطناعي الحين يفهم عملك ويقترح مهام حقيقية للأتمتة.",
+      },
+    };
+  if (s >= 50)
+    return {
+      label: { en: "🟡 Good Profile", ar: "🟡 ملف جيد" },
+      msg: {
+        en: "Solid start — add more concrete detail to a few answers for sharper results.",
+        ar: "بداية قوية — زد تفاصيل ملموسة في كم إجابة عشان نتائج أدق.",
+      },
+    };
+  return {
+    label: { en: "🔴 Needs More Detail", ar: "🔴 يحتاج تفاصيل أكثر" },
+    msg: {
+      en: "Go back and add concrete examples — detail is what makes the AI useful.",
+      ar: "ارجع وزد أمثلة ملموسة — التفصيل هو اللي يخلي الذكاء الاصطناعي مفيد.",
+    },
+  };
+}
+
+function profileTierEN(s) {
+  if (s >= 80) return "AI-Ready";
+  if (s >= 50) return "Good";
+  return "Needs Detail";
+}
+
+// Pick the right scoring engine for this version.
 function computeScore() {
+  if (BRAND.mode === "completeness") return completenessScore();
+  return diagnosticScore();
+}
+
+// The algorithm: 5 diagnostic answers → overall AI Stage score + breakdown.
+function diagnosticScore() {
   const usage = diagScore("dx_usage");
   const depth = diagScore("dx_depth");
   const automation = diagScore("dx_automation");
@@ -258,9 +329,29 @@ function renderThankYou(q) {
   const wrap = el("div", "center");
   const result = computeScore();
   const score = result.overall;
-  const tier = aiStage(score);
+  const tier = BRAND.mode === "completeness" ? profileTier(score) : aiStage(score);
   const where = BRAND.name;
   const dir = LANG === "ar" ? "rtl" : "ltr";
+
+  // Course recommendations only show for brands that have a course path.
+  const recoHtml = !BRAND.coursePath
+    ? ""
+    : `<div class="reco" dir="${dir}">
+      <div class="reco__title">${t(UI.recoTitle)}</div>
+      <div class="reco__line">${t(recommendLine(score))}</div>
+      <ol class="reco__list">
+        ${LEARNING_PATH.map(
+          (s) => `<li>
+            <span class="reco__tag">${t(s.tag)}</span>
+            <span class="reco__body">
+              <span class="reco__course">${s.course}</span>
+              <span class="reco__note">${t(s.note)}</span>
+              ${s.url ? `<a class="reco__btn" href="${s.url}" target="_blank" rel="noopener">${t(UI.startBtn)}</a>` : ""}
+            </span>
+          </li>`
+        ).join("")}
+      </ol>
+    </div>`;
 
   wrap.innerHTML = `
     ${brandLogo()}
@@ -291,22 +382,7 @@ function renderThankYou(q) {
         .join("")}
     </div>
 
-    <div class="reco" dir="${dir}">
-      <div class="reco__title">${t(UI.recoTitle)}</div>
-      <div class="reco__line">${t(recommendLine(score))}</div>
-      <ol class="reco__list">
-        ${LEARNING_PATH.map(
-          (s) => `<li>
-            <span class="reco__tag">${t(s.tag)}</span>
-            <span class="reco__body">
-              <span class="reco__course">${s.course}</span>
-              <span class="reco__note">${t(s.note)}</span>
-              ${s.url ? `<a class="reco__btn" href="${s.url}" target="_blank" rel="noopener">${t(UI.startBtn)}</a>` : ""}
-            </span>
-          </li>`
-        ).join("")}
-      </ol>
-    </div>
+    ${recoHtml}
   `;
 
   const ring = wrap.querySelector(".score-ring");
@@ -340,6 +416,12 @@ function questionNumber() {
 function renderQuestion(q) {
   const wrap = el("div");
   const { n, total } = questionNumber();
+
+  if (q.group) {
+    const g = el("div", "q-section");
+    g.textContent = t(q.group);
+    wrap.appendChild(g);
+  }
 
   const kicker = el("div", "kicker");
   kicker.innerHTML = `<span class="num">${n} → ${total}</span>`;
@@ -571,7 +653,7 @@ async function submit() {
     brand: BRAND.name,
     brand_key: BRAND.key,
     ai_score: result.overall,
-    ai_stage: stageNameEN(result.overall),
+    ai_stage: BRAND.mode === "completeness" ? profileTierEN(result.overall) : stageNameEN(result.overall),
     lang: LANG,
     submitted_at: new Date().toISOString(),
   };

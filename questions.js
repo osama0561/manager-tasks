@@ -11,7 +11,9 @@
    Diagnostic options carry a `score` (0–100) used by the algorithm.
    ============================================================ */
 
-const QUESTIONS = [
+const QUESTION_SETS = {};
+
+QUESTION_SETS.default = [
   {
     type: "welcome",
     title: {
@@ -167,6 +169,161 @@ const QUESTIONS = [
   {
     type: "thankyou",
     title: { en: "Your AI Stage", ar: "مستواك في الذكاء الاصطناعي" },
-    community: "مجلس الاتمته +",
+  },
+];
+
+/* ============================================================
+   10x — Work Profile builder (اتمتها). Detailed open questions
+   that produce a profile any AI can use. Scored by completeness.
+   ============================================================ */
+QUESTION_SETS.tenx = [
+  {
+    type: "welcome",
+    title: { en: "Work Profile — Who I Am & What I Do", ar: "ملف عملي — مَن أنا وماذا أفعل" },
+    subtitle: {
+      en: "Fill this out in detail with concrete examples. By the end you'll have a complete profile that lets any AI understand your work precisely. 🔒 Work only — no client names or private data; talk about roles and tasks, not specific people.",
+      ar: "املأه بالتفصيل وبأمثلة ملموسة. في النهاية بيصير عندك ملف كامل يخلي أي ذكاء اصطناعي يفهم عملك ومهامك بدقة. 🔒 أسئلة عن عملك فقط — لا تكتب أسماء عملاء أو بيانات سرية، تكلم عن الأدوار والمهام مو عن أشخاص.",
+    },
+    voiceTip: {
+      en: "Use the 🎤 mic button on your keyboard to answer — just talk, don't worry about typos. The more detail, the smarter the result.",
+      ar: "استعمل زر المايك 🎤 في لوحة المفاتيح للإجابة — تكلّم ولا تخاف من الأخطاء الكتابية. كل ما زاد التفصيل، طلعت النتيجة أذكى.",
+    },
+    voiceImage: "assets/keyboard-mic.png",
+    cta: { en: "Start →", ar: "نبدأ →" },
+  },
+
+  {
+    id: "name",
+    type: "short_text",
+    title: { en: "First, what's your name?", ar: "بالبداية، وش اسمك؟" },
+    placeholder: { en: "Type your name…", ar: "اكتب اسمك…" },
+    required: true,
+  },
+  {
+    id: "email",
+    type: "email",
+    title: { en: "And your best email?", ar: "وش أفضل إيميل لك؟" },
+    placeholder: { en: "you@email.com", ar: "you@email.com" },
+    required: true,
+  },
+
+  // Section 1 — Who you are at work
+  {
+    id: "tx1", type: "long_text",
+    group: { en: "1 · Who you are at work", ar: "١ · من أنت في العمل" },
+    title: { en: "What's your job title? Are you an employee or a business owner?", ar: "ما هو مسمّاك الوظيفي؟ وهل أنت موظف أو صاحب عمل؟" },
+    placeholder: { en: "e.g. Operations manager at a contracting firm / online store owner", ar: "مثال: مدير تشغيل في شركة مقاولات / صاحب متجر إلكتروني" },
+    required: true,
+  },
+  {
+    id: "tx2", type: "long_text",
+    group: { en: "1 · Who you are at work", ar: "١ · من أنت في العمل" },
+    title: { en: "Exactly what sector or field do you work in?", ar: "في أي قطاع أو مجال تعمل بالضبط؟" },
+    placeholder: { en: "Be specific: not 'retail' but 'retail for coffee supplies'", ar: "كن دقيق: مو «تجارة» بل «تجارة تجزئة لمستلزمات القهوة»" },
+    required: true,
+  },
+  {
+    id: "tx3", type: "long_text",
+    group: { en: "1 · Who you are at work", ar: "١ · من أنت في العمل" },
+    title: { en: "Describe your company or department in two sentences: what do you offer and to whom?", ar: "صف شركتك أو قسمك في جملتين: ماذا تقدّمون ولمن؟" },
+    placeholder: { en: "The product/service, and the target customer", ar: "ايش المنتج/الخدمة، ومين العميل المستهدف" },
+    required: true,
+  },
+  {
+    id: "tx4", type: "long_text",
+    group: { en: "1 · Who you are at work", ar: "١ · من أنت في العمل" },
+    title: { en: "How big is your team? Who's above you and who's below you?", ar: "ما حجم فريقك؟ مَن فوقك ومَن تحتك في العمل؟" },
+    placeholder: { en: "Roles, not names: 'I report to a GM, and 3 sales staff report to me'", ar: "اذكر الأدوار لا الأسماء: «أرفع تقاريري لمدير عام، وتحتي ٣ موظفين مبيعات»" },
+    required: true,
+  },
+
+  // Section 2 — Responsibilities & outputs
+  {
+    id: "tx5", type: "long_text",
+    group: { en: "2 · Responsibilities & outputs", ar: "٢ · مسؤولياتك ومخرجاتك" },
+    title: { en: "What are the top 3–5 responsibilities you own?", ar: "ما هي أهم ٣ إلى ٥ مسؤوليات أنت مسؤول عنها؟" },
+    placeholder: { en: "The things that, if undone, someone would notice", ar: "الأشياء اللي لو ما سويتها، أحد بيلاحظ غيابها" },
+    required: true,
+  },
+  {
+    id: "tx6", type: "long_text",
+    group: { en: "2 · Responsibilities & outputs", ar: "٢ · مسؤولياتك ومخرجاتك" },
+    title: { en: "What outputs are you repeatedly asked to deliver?", ar: "ما هي المخرجات التي يُطلب منك تسليمها بشكل متكرر؟" },
+    placeholder: { en: "e.g. weekly sales reports, quotes, customer replies, invoices, schedules", ar: "مثال: تقارير مبيعات أسبوعية، عروض أسعار، ردود على العملاء، فواتير، جداول مواعيد" },
+    required: true,
+  },
+  {
+    id: "tx7", type: "long_text",
+    group: { en: "2 · Responsibilities & outputs", ar: "٢ · مسؤولياتك ومخرجاتك" },
+    title: { en: "How is your success measured at work?", ar: "على أي أساس يُقاس نجاحك في عملك؟" },
+    placeholder: { en: "The numbers/targets you're judged on: sales, satisfaction, turnaround…", ar: "الأرقام أو الأهداف اللي تُحاسب عليها: مبيعات، رضا عملاء، سرعة إنجاز..." },
+    required: true,
+  },
+
+  // Section 3 — A normal day
+  {
+    id: "tx8", type: "long_text",
+    group: { en: "3 · A normal workday", ar: "٣ · يومك العادي في العمل" },
+    title: { en: "Walk through a normal workday step by step — from opening your device to end of day.", ar: "اشرح يوم عمل عادي خطوة بخطوة، من أول ما تفتح جهازك إلى نهاية الدوام." },
+    placeholder: { en: "'First I open email, then…' — as much detail as you can", ar: "«أول شي أفتح الإيميل، بعدها...» بقدر ما تقدر من التفصيل" },
+    required: true,
+  },
+  {
+    id: "tx9", type: "long_text",
+    group: { en: "3 · A normal workday", ar: "٣ · يومك العادي في العمل" },
+    title: { en: "What do you do almost every day?", ar: "ما الأشياء التي تفعلها بشكل يومي تقريباً؟" },
+    placeholder: { en: "The fixed, repeated tasks in your day", ar: "المهام المتكررة الثابتة في يومك" },
+    required: true,
+  },
+  {
+    id: "tx10", type: "long_text",
+    group: { en: "3 · A normal workday", ar: "٣ · يومك العادي في العمل" },
+    title: { en: "What weekly or monthly tasks take up your time?", ar: "ما الأشياء التي تفعلها أسبوعياً أو شهرياً وتأخذ منك وقتاً؟" },
+    placeholder: { en: "e.g. end-of-week report, monthly meeting prep, accounts review", ar: "مثال: تقرير نهاية الأسبوع، تجهيز اجتماع شهري، مراجعة حسابات" },
+    required: true,
+  },
+  {
+    id: "tx11", type: "long_text",
+    group: { en: "3 · A normal workday", ar: "٣ · يومك العادي في العمل" },
+    title: { en: "Where does most of your time actually go?", ar: "أين يذهب معظم وقتك فعلياً؟" },
+    placeholder: { en: "Be honest: not what you wish, but what really eats your time", ar: "كن صادق: مو اللي تتمنى تشتغل عليه، بل اللي يأكل وقتك فعلاً" },
+    required: true,
+  },
+
+  // Section 4 — Tools & data
+  {
+    id: "tx12", type: "long_text",
+    group: { en: "4 · Tools & data", ar: "٤ · الأدوات والبيانات" },
+    title: { en: "What tools and apps do you work in daily?", ar: "ما الأدوات والبرامج التي تعمل عليها يومياً؟" },
+    placeholder: { en: "e.g. WhatsApp, Excel, email, a specific accounting system, a social platform", ar: "مثال: واتساب، إكسل، إيميل، نظام محاسبة معيّن، منصة تواصل اجتماعي" },
+    required: true,
+  },
+  {
+    id: "tx13", type: "long_text",
+    group: { en: "4 · Tools & data", ar: "٤ · الأدوات والبيانات" },
+    title: { en: "Where do your inputs come from, and where do your outputs go?", ar: "من أين تأتيك المعلومات والمدخلات التي تعمل عليها، وإلى من تذهب مخرجاتك؟" },
+    placeholder: { en: "Describe the chain: 'orders come from the store → I process → send to the courier'", ar: "صف سلسلة العمل: «تجيني الطلبات من المتجر → أجهزها → أرسلها للمندوب»" },
+    required: true,
+  },
+
+  // Section 5 — Friction & time-wasters
+  {
+    id: "tx14", type: "long_text",
+    group: { en: "5 · Friction & time-wasters", ar: "٥ · الاحتكاكات ومضيّعات الوقت" },
+    title: { en: "What's the most repetitive, boring task you wish someone would do for you?", ar: "ما أكثر شيء متكرر وممل في عملك تتمنى لو أحد يفعله بدلاً عنك؟" },
+    placeholder: { en: "The task that makes you sigh when it's time for it", ar: "المهمة اللي تتنهد لما تجي وقتها" },
+    required: true,
+  },
+  {
+    id: "tx15", type: "long_text",
+    group: { en: "5 · Friction & time-wasters", ar: "٥ · الاحتكاكات ومضيّعات الوقت" },
+    title: { en: "What, if solved, would clearly save you time or money?", ar: "ما الشيء الذي لو تم حلّه سيوفر لك وقتاً أو مالاً بشكل واضح؟" },
+    placeholder: { en: "Think impact: hours per week? cost? recurring errors?", ar: "فكر بالأثر: ساعات أسبوعياً؟ تكلفة؟ أخطاء تتكرر؟" },
+    required: true,
+  },
+
+  {
+    type: "thankyou",
+    title: { en: "Your Work-Profile Strength", ar: "قوة ملفك العملي" },
   },
 ];

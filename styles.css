@@ -66,6 +66,10 @@ html, body {
   to { opacity: 0; transform: translateY(-18px); }
 }
 
+.q-section {
+  color: var(--muted); font-size: 13px; font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px;
+}
 .kicker {
   display: inline-flex; align-items: center; gap: 8px;
   color: var(--brand); font-weight: 600; font-size: 14px;
