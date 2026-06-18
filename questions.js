@@ -199,20 +199,13 @@ QUESTION_SETS.tenx = [
     placeholder: { en: "Type your name…", ar: "اكتب اسمك…" },
     required: true,
   },
-  {
-    id: "email",
-    type: "email",
-    title: { en: "And your best email?", ar: "وش أفضل إيميل لك؟" },
-    placeholder: { en: "you@email.com", ar: "you@email.com" },
-    required: true,
-  },
 
   // Section 1 — Who you are at work
   {
     id: "tx1", type: "long_text",
     group: { en: "1 · Who you are at work", ar: "١ · من أنت في العمل" },
-    title: { en: "What's your job title? Are you an employee or a business owner?", ar: "ما هو مسمّاك الوظيفي؟ وهل أنت موظف أو صاحب عمل؟" },
-    placeholder: { en: "e.g. Operations manager at a contracting firm / online store owner", ar: "مثال: مدير تشغيل في شركة مقاولات / صاحب متجر إلكتروني" },
+    title: { en: "What's your job?", ar: "وش وظيفتك؟" },
+    placeholder: { en: "e.g. Operations manager at a contracting firm", ar: "مثال: مدير تشغيل في شركة مقاولات" },
     required: true,
   },
   {

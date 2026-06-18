@@ -36,14 +36,14 @@ var HEADERS = [
 
 // 10x work-profile version — its own columns.
 var COLUMNS_10X = [
-  "submitted_at", "name", "email", "brand",
+  "submitted_at", "name", "brand",
   "tx1", "tx2", "tx3", "tx4", "tx5", "tx6", "tx7", "tx8",
   "tx9", "tx10", "tx11", "tx12", "tx13", "tx14", "tx15",
   "ai_score", "ai_stage", "lang", "pre_call_brief",
 ];
 var HEADERS_10X = [
-  "Timestamp", "Name", "Email", "Brand",
-  "Job Title / Owner", "Sector", "Company (what & who)", "Team & Hierarchy",
+  "Timestamp", "Name", "Brand",
+  "Job", "Sector", "Company (what & who)", "Team & Hierarchy",
   "Top Responsibilities", "Recurring Outputs", "Success Measured By",
   "Normal Day", "Daily Tasks", "Weekly/Monthly Tasks", "Where Time Goes",
   "Tools Used", "Input → Output Chain", "Most Boring Task", "Biggest Time/Money Saver",
